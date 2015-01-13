@@ -37,6 +37,7 @@ class Cybouzu
 			secret 		: process.env.HUBOT_CYBOZU_SECRET
 			username 	: process.env.HUBOT_CYBOZU_USERNAME
 			password 	: process.env.HUBOT_CYBOZU_PASSWORD
+			roomid		: process.env.HUBOT_CYBOZU_CHATROOMID
 		bot = new CybouzuStreaming (options)
 
 cybouzu = new Cybouzu()
