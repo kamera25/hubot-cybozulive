@@ -24,7 +24,7 @@ class CybouzuStreaming
 		selfoa.getOAuthRequestToken x_auth_params, (err, token, tokenSecret, results) ->
  		
 			 # 新着記事の取得
-			 selfoa.get 'https://api.cybozulive.com/api/mpChat/V2?chat-type=THEME', token, tokenSecret, (err, data) ->
+			 selfoa.get 'https://api.cybozulive.com/api/mpChat/V2?chat-type=DIRECT', token, tokenSecret, (err, data) ->
 				 console.log data
 
 
