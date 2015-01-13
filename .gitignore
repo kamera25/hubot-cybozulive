@@ -1,0 +1,12 @@
+raw
+presentation
+test.coffee
+test.litcoffee
+parser.output
+test/fixtures/underscore
+test/*.js
+examples/beautiful_code/parse.coffee
+*.gem
+/node_modules
+*~
+*.sh
