@@ -13,7 +13,7 @@ class Cybouzu
 			secret 		: process.env.HUBOT_CYBOZU_SECRET
 			username 	: process.env.HUBOT_CYBOZU_USERNAME
 			password 	: process.env.HUBOT_CYBOZU_PASSWORD
-			roomid		: process.env.HUBOT_CYBOZU_CHATROOMID
+			chatroomid	: process.env.HUBOT_CYBOZU_CHATROOMID
   @bot = new CybouzuStreaming (options)
 
 exports.use = (robot) ->
@@ -49,10 +49,16 @@ class CybouzuStreaming
     
     #selfoa.get 'https://api.cybozulive.com/api/mpChat/V2?chat-type=DIRECT&id=MYPAGE,1:328514,MP_CHAT,1:7325666', token, tokenSecret, (err, data) ->
     #selfoa.get 'https://api.cybozulive.com/api/notification/V2?category=M_CHAT', token, tokenSecret, (err, data) -> #XML
-    selfoa.get 'https://api.cybozulive.com/api/notification/V2?category=M_CHAT', token, tokenSecret, (err, data) ->
+    #selfoa.get 'https://api.cybozulive.com/api/notification/V2?category=M_CHAT', token, tokenSecret, (err, data) ->
+    
+    # 新着記事の取得を用いて、Hubotに返す文字列を取得
+    roomId = 'MYPAGE,1:328514,MP_CHAT,1:7325666'
+    body = '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom"><entry><id>' + roomId + '</id></entry></feed>'
+    selfoa.post "https://api.cybozulive.com/api/notification/V2?category=M_CHAT", token, tokenSecret, body, 'application/atom+xml', (err, data) ->
      jsondata = parser.toJson(data)
      json = JSON.parse( jsondata)
-     console.log json.feed.entry[0].summary.$t #内容の表示をする。
+     console.log json.feed.entry.summary.$t #内容の表示をする。
+     #console.log json
     
  send : (messeage) ->
         
