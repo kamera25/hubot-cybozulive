@@ -1,13 +1,12 @@
 oauth		= require('oauth') #OAuthのリクアイア
 parser     = require('xml2json') #xmljsonのリクアイア
-#{Adapter, TextMessage} = require 'hubot'
+#{Adapter} = require 'hubot'
 #{EventEmitter} = require 'events'
 
 # サイボウズライブ の Adapter 
 class Cybouzu # extends Adapter
  send: (envelope, strings...) ->
-  @bot.send("やっほーー！！")
-  @bot.listen()
+  @bot.send str for str in strings
         
         #bot の生成と持続的な収集を行う
  run: ->
@@ -18,14 +17,17 @@ class Cybouzu # extends Adapter
 			password 	: process.env.HUBOT_CYBOZU_PASSWORD
 			chatroomid	: process.env.HUBOT_CYBOZU_CHATROOMID
   @bot = new CybouzuStreaming (options)
+  
+            
+  @bot.listen()
+            
+  #@emit 'connected'
 
 exports.use = (robot) ->
   new Cybouzu robot
             
             
 class CybouzuStreaming # extends EventEmitter
-    
- self = @
     
  constructor : (options) ->
         
@@ -104,8 +106,8 @@ class CybouzuStreaming # extends EventEmitter
       for key,val of json.feed.entry.link
        if( val.href == aimchatroomid)
         @roomId = val.id
-
-     
+    
+    
     
  # テキストをサイボウズライブに送信する
  send : (messeage) ->
@@ -142,8 +144,8 @@ class CybouzuStreaming # extends EventEmitter
         
         
 #Test Main()
-cybouzu = new Cybouzu()
+#cybouzu = new Cybouzu()
 
-cybouzu.run()
-cybouzu.send "hello", "hello"
+#cybouzu.run()
+#cybouzu.send "hello", "hello"
 
