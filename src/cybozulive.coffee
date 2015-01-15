@@ -1,6 +1,25 @@
 oauth		= require('oauth') #OAuthのリクアイア
 parser     = require('xml2json') #xmljsonのリクアイア
 
+# サイボウズライブ の Adapter 
+class Cybouzu
+ send: (envelope, strings...) ->
+  @bot.send("やっほーー！！")
+        
+        #bot の生成と持続的な収集を行う
+ run: ->
+  options =
+			key 		: process.env.HUBOT_CYBOZU_KEY
+			secret 		: process.env.HUBOT_CYBOZU_SECRET
+			username 	: process.env.HUBOT_CYBOZU_USERNAME
+			password 	: process.env.HUBOT_CYBOZU_PASSWORD
+			roomid		: process.env.HUBOT_CYBOZU_CHATROOMID
+  @bot = new CybouzuStreaming (options)
+
+exports.use = (robot) ->
+  new Cybouzu robot
+            
+            
 class CybouzuStreaming
     
  self = @
@@ -22,14 +41,18 @@ class CybouzuStreaming
 				x_auth_password	: options.password
 				x_auth_username	: options.username
                 
+   @roomid = options.roomid
    selfoa = @oa
 
    selfoa.getOAuthRequestToken @x_auth_params, (err, token, tokenSecret, results) ->
     # 新着記事の取得
     
-    selfoa.get 'https://api.cybozulive.com/api/mpChat/V2?chat-type=DIRECT', token, tokenSecret, (err, data) ->
-    #ndata = parser.toJson(data)
-     console.log data
+    #selfoa.get 'https://api.cybozulive.com/api/mpChat/V2?chat-type=DIRECT&id=MYPAGE,1:328514,MP_CHAT,1:7325666', token, tokenSecret, (err, data) ->
+    #selfoa.get 'https://api.cybozulive.com/api/notification/V2?category=M_CHAT', token, tokenSecret, (err, data) -> #XML
+    selfoa.get 'https://api.cybozulive.com/api/notification/V2?category=M_CHAT', token, tokenSecret, (err, data) ->
+     jsondata = parser.toJson(data)
+     json = JSON.parse( jsondata)
+     console.log json.feed.entry[0].summary.$t #内容の表示をする。
     
  send : (messeage) ->
         
@@ -43,27 +66,6 @@ class CybouzuStreaming
     console.log err
     
     #listen: ->
-
-
-    
-# サイボウズライブ の Adapter 
-class Cybouzu
- send: (envelope, strings...) ->
-  @bot.send("やっほーー！！")
-        
-        #bot の生成と持続的な収集を行う
- run: ->
-  options =
-			key 		: process.env.HUBOT_CYBOZU_KEY
-			secret 		: process.env.HUBOT_CYBOZU_SECRET
-			username 	: process.env.HUBOT_CYBOZU_USERNAME
-			password 	: process.env.HUBOT_CYBOZU_PASSWORD
-			roomid		: process.env.HUBOT_CYBOZU_CHATROOMID
-  @bot = new CybouzuStreaming (options)
-        
-
-exports.use = (robot) ->
-  new Cybouzu robot
         
         
         
@@ -71,5 +73,5 @@ exports.use = (robot) ->
 cybouzu = new Cybouzu()
 
 cybouzu.run()
-cybouzu.send "hello", "hello"
+#cybouzu.send "hello", "hello"
 
