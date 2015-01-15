@@ -9,4 +9,5 @@ examples/beautiful_code/parse.coffee
 *.gem
 /node_modules
 *~
+*.js
 *.sh
