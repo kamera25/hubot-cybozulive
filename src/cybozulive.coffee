@@ -1,13 +1,22 @@
 oauth		= require('oauth') #OAuthのリクアイア
 parser     = require('xml2json') #xmljsonのリクアイア
-{Adapter, TextMessage} = require 'hubot'
+Hubot       = require('hubot')
 {EventEmitter} = require 'events'
 
 # サイボウズライブ の Adapter 
-class Cybozulive extends Adapter
+class Cybozulive extends Hubot.Adapter
  send: (envelope, strings...) ->
-  @bot.send str for str in strings
+  for str in strings
+   @bot.send str
         
+ reply: (user, strings...) ->
+　　console.log "Replying"
+  @bot.send str for str in strings
+
+ command: (command, strings...) ->
+　　console.log "Command" 
+  @bot.send str for str in strings
+
         #bot の生成と持続的な収集を行う
  run: ->
   options =
@@ -16,16 +25,18 @@ class Cybozulive extends Adapter
 			username 	: process.env.HUBOT_CYBOZU_USERNAME
 			password 	: process.env.HUBOT_CYBOZU_PASSWORD
 			chatroomid	: process.env.HUBOT_CYBOZU_CHATROOMID
-  @bot = new CybozuliveStreaming(options, @robot)
+  bot = new CybozuliveStreaming(options, @robot)
   
   #
   # メッセージの受け取り
   #
-  @bot.on 'message', (userId, userData, message) ->
-   user = @robot.brain.userForId userId, userData
-   @receive new TextMessage user, message    
+  bot.on 'message', (userId, message) =>
+   #user = @robot.brain.userForId 1
+   @receive new Hubot.TextMessage 1, message    
             
-  @bot.listen()
+  bot.listen()
+
+  @bot = bot
             
   @emit 'connected'
 
@@ -131,10 +142,12 @@ class CybozuliveStreaming extends EventEmitter
     
     # 新着記事の取得を用いて、Hubotに返す文字列を取得
  listen: =>
+
         
   @rate = 10000
   timeout = =>
    body = '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom"><entry><id>' + @roomId + '</id></entry></feed>'
+
 
    # チャットの取得
    @oa.post "https://api.cybozulive.com/api/notification/V2?category=M_CHAT", @token, @secret, body, 'application/atom+xml', (err, data) =>
@@ -144,9 +157,9 @@ class CybozuliveStreaming extends EventEmitter
      jsondata = parser.toJson(data)
      json = JSON.parse( jsondata)
      message = json.feed.entry.summary.$t #内容の表示をする。
-     user = json.feed.entry.author.name
+     #user = json.feed.entry.author.name
+     @emit 'message', 1, message
      console.log message
-     @emit 'message', user, message
     setTimeout timeout, @rate
   timeout()
 
