@@ -1,7 +1,17 @@
 {
   "name": "hubot-cybozulive",
-  "version": "0.0.1f",
+  "version": "0.0.2a",
   "description": "Hubot CybozuLive Adapter",
+ "licenses": [
+  {
+   "type": "MIT",
+   "url": "https://github.com/kamera25/hubot-cybozulive/blob/master/LICENSE"
+  }
+ ],
+ "repository": {
+   "type": "git",
+   "url": "git@github.com:kamera25/hubot-cybozulive.git"
+ },
  "dependencies": {
     "hubot": "^2.11.0",
     "xml2json": "^0.5.1",
@@ -14,6 +24,5 @@
   "keywords": [
     "Hubot"
   ],
-  "author": "Takahiro Nakaoku",
-  "license": "MIT"
+  "author": "Takahiro Nakaoku"
 }
