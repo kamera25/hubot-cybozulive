@@ -1,0 +1,19 @@
+{
+  "name": "hubot-cybozulive",
+  "version": "0.0.1c",
+  "description": "Hubot CybozuLive Adapter",
+ "dependencies": {
+    "hubot": "^2.11.0",
+    "xml2json": "^0.5.1",
+    "oauth": "^0.9.12"
+  },
+  "main": "./src/cybozulive",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Hubot"
+  ],
+  "author": "Takahiro Nakaoku",
+  "license": "MIT"
+}

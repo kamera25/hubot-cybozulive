@@ -4,7 +4,7 @@ parser     = require('xml2json') #xmljsonのリクアイア
 {EventEmitter} = require 'events'
 
 # サイボウズライブ の Adapter 
-class Cybozulive # extends Adapter
+class Cybozulive extends Adapter
  send: (envelope, strings...) ->
   @bot.send str for str in strings
         
@@ -27,13 +27,13 @@ class Cybozulive # extends Adapter
             
   @bot.listen()
             
-  #@emit 'connected'
+  @emit 'connected'
 
 exports.use = (robot) ->
   new Cybozulive robot
             
             
-class CybozuliveStreaming # extends EventEmitter
+class CybozuliveStreaming extends EventEmitter
     
  constructor : (options, @robot) ->
         
@@ -118,7 +118,7 @@ class CybozuliveStreaming # extends EventEmitter
     
     
  # テキストをサイボウズライブに送信する
- send : (messeage) ->
+ send : (messeage) =>
   if( @roomId == undefined)
    console.log "Error : send : undefined roomID. sometime, this problem occur when processing is not complete."
    return
@@ -130,7 +130,7 @@ class CybozuliveStreaming # extends EventEmitter
      console.log "Error send. : " + err
     
     # 新着記事の取得を用いて、Hubotに返す文字列を取得
- listen: ->
+ listen: =>
         
   @rate = 10000
   timeout = =>
@@ -146,8 +146,7 @@ class CybozuliveStreaming # extends EventEmitter
      message = json.feed.entry.summary.$t #内容の表示をする。
      user = json.feed.entry.author.name
      console.log message
-     #@send("hello")   
-     #@emit 'message', user, message
+     @emit 'message', user, message
     setTimeout timeout, @rate
   timeout()
 
