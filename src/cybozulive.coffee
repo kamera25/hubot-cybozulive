@@ -1,23 +1,30 @@
-oauth		= require('oauth') #OAuthのリクアイア
-parser     = require('xml2json') #xmljsonのリクアイア
-Hubot       = require('hubot')
-{EventEmitter} = require 'events'
+oauth = require('oauth') #OAuthのリクアイア
+parser = require('xml2json') #xmljsonのリクアイア
+Hubot = require('hubot') #Hubotのリクアイア
+{EventEmitter} = require('events') # eventsのリクアイア
 
-# サイボウズライブ の Adapter 
+
+# ####################### #
+# サイボウズLive の Adapter #
+# ####################### #
 class Cybozulive extends Hubot.Adapter
  send: (envelope, strings...) ->
+　　console.log 'Sending'
   for str in strings
    @bot.send str
         
  reply: (user, strings...) ->
-　　console.log "Replying"
+　　console.log 'Replying'
   @bot.send str for str in strings
 
  command: (command, strings...) ->
-　　console.log "Command" 
+　　console.log 'Command' 
   @bot.send str for str in strings
 
-        #bot の生成と持続的な収集を行う
+
+ # ############################# #
+ # bot の生成と持続的な収集を行う  #
+ # ############################# #
  run: ->
   options =
 			key 		: process.env.HUBOT_CYBOZU_KEY
@@ -28,16 +35,20 @@ class Cybozulive extends Hubot.Adapter
   bot = new CybozuliveStreaming(options, @robot)
   
   #
-  # メッセージの受け取り
+  # メッセージの受け取り (CybozuliveStreaming.send で使うコールバック)
   #
-  bot.on 'message', (userId, message) =>
-   #user = @robot.brain.userForId 1
-   @receive new Hubot.TextMessage 1, message    
+  bot.on 'message', (userName, message, userId) =>
+   user = @robot.brain.userForId userId,
+     name : userName
+   console.log user
+   @receive new Hubot.TextMessage user, message, userId    
             
+  # チャットの自動取得をONに
   bot.listen()
 
   @bot = bot
             
+  # Hubot Core に接続確立成功と送信
   @emit 'connected'
 
 exports.use = (robot) ->
@@ -64,12 +75,15 @@ class CybozuliveStreaming extends EventEmitter
 				x_auth_password	: options.password
 				x_auth_username	: options.username
    else
-    console.log "Error : Dosen't exist some environment variable." 
+    console.log "Error : Dosen't exist some environment variables." 
     process.exit 1
                 
    chatroomid = options.chatroomid
    selfoa = @oa    
-        
+   
+   #
+   # サイボウズLiveにアクセストークンをリクエスト
+   #
    selfoa.getOAuthRequestToken @x_auth_params, (err, token, tokenSecret, results) =>
     if err
      console.log "Error get a token : " + err
@@ -78,7 +92,7 @@ class CybozuliveStreaming extends EventEmitter
     @token = token
     @secret = tokenSecret 
     
-    #chatroomidに該当するIDを探す。
+    # チャットルームURL(chatroomid) に該当するをIDをテーマ・ダイレクトチャットのリストから探す。
     aimchatroomid = 'https://cybozulive.com/mpChat/view?chatRoomId=' + chatroomid
 
     #
@@ -128,23 +142,29 @@ class CybozuliveStreaming extends EventEmitter
     
     
     
- # テキストをサイボウズライブに送信する
+ # メッセージをサイボウズLiveチャットに送信する
  send : (messeage) =>
   if( @roomId == undefined)
    console.log "Error : send : undefined roomID. sometime, this problem occur when processing is not complete."
    return
+
+  # メッセージの置き換え
+  messeage = messeage.replace(/</g, '&lt;')
+  messeage = messeage.replace(/>/g, '&gt;')
             
   body = '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom" xmlns:cbl="http://schemas.cybozulive.com/common/2010"><cbl:operation type="insert"/><id>' + @roomId + '</id><entry><summary type="text">' + messeage + '</summary></entry></feed>'
+
+  console.log messeage
 　
   @oa.post "https://api.cybozulive.com/api/comet/mpChatPush/V2", @token, @secret, body, 'application/atom+xml', (err, data) ->
     if err? # エラー表示
      console.log "Error send. : " + err
     
-    # 新着記事の取得を用いて、Hubotに返す文字列を取得
+ # 新着記事の取得を用いて、Hubotに返す文字列を取得
  listen: =>
 
         
-  @rate = 10000
+  @rate = 10000 # 10秒に1度最新メッセージを取得
   timeout = =>
    body = '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom"><entry><id>' + @roomId + '</id></entry></feed>'
 
@@ -154,20 +174,20 @@ class CybozuliveStreaming extends EventEmitter
     if err || !@roomId?
      console.log "Error listen."
     else           
+
+　　　　　# XML to Json, とパース
      jsondata = parser.toJson(data)
      json = JSON.parse( jsondata)
-     message = json.feed.entry.summary.$t #内容の表示をする。
-     #user = json.feed.entry.author.name
-     @emit 'message', 1, message
-     console.log message
+
+     # Hubot Core にメッセージを送信
+     message = json.feed.entry.summary.$t # 最新のチャット内容
+     userName = json.feed.entry.author.name # ユーザ名
+     userId = json.feed.entry.author.uri # ユーザID
+     @emit 'message', userName, message, userId
+
+     console.log message # デバッグ...
+
     setTimeout timeout, @rate
   timeout()
 
-        
-        
-#Test Main()
-#cybozu = new Cybozulive()
-
-#cybozu.run()
-#cybozu.send "hello", "hello"
 
