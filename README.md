@@ -27,6 +27,7 @@ bin/hubot -a cybozulive
 ## Caution
 * Set API data accsess level "Z". otherwise, occur　an error. see https://developer.cybozulive.com/doc/current/pub/overview.html.
 * Input a chatroomId in cybozulive. (e.g. "1%23456ABCD" of https://cybozulive.com/mpChat/view?chatRoomId=1%23456ABCD is chatRoomId)
+* Any message must exist in the chatroom. otherwise, occur　an error.
 
 ## License
 The MIT License. See `LICENSE` file.
