@@ -111,7 +111,7 @@ class CybozuliveStreaming extends EventEmitter
       return
      if( !json.feed.entry.length?) #    ダイレクトチャットのリストが1つの時
       if( json.feed.entry.link[0].href == aimchatroomid)
-       @roomId = json.feed.entry.id         
+       @roomId = json.feed.entry.id     
      else #                             ダイレクトチャットのリストが2つ以上の時
       for key,val of json.feed.entry
        if( val.link[0].href == aimchatroomid)
@@ -129,15 +129,15 @@ class CybozuliveStreaming extends EventEmitter
      #XML to JSON & パース
      jsondata = parser.toJson(data)
      json = JSON.parse( jsondata)
-        
+
      if( !json.feed.entry?) #           テーマチャットのリストがない時
       return
      if( !json.feed.entry.length?) #    テーマチャットのリストが1つの時
-      if( json.feed.entry.href == aimchatroomid)
+      if( json.feed.entry.link[0].href == aimchatroomid)
        @roomId = json.feed.entry.id
      else #                             テーマチャットのリストが2つ以上の時
-      for key,val of json.feed.entry.link
-       if( val.href == aimchatroomid)
+      for key,val of json.feed.entry
+       if( val.link[0].href == aimchatroomid)
         @roomId = val.id
     
     
@@ -154,8 +154,6 @@ class CybozuliveStreaming extends EventEmitter
             
   body = '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom" xmlns:cbl="http://schemas.cybozulive.com/common/2010"><cbl:operation type="insert"/><id>' + @roomId + '</id><entry><summary type="text">' + messeage + '</summary></entry></feed>'
 
-  console.log messeage
-　
   @oa.post "https://api.cybozulive.com/api/comet/mpChatPush/V2", @token, @secret, body, 'application/atom+xml', (err, data) ->
     if err? # エラー表示
      console.log "Error send. : " + err
@@ -178,6 +176,11 @@ class CybozuliveStreaming extends EventEmitter
 　　　　　# XML to Json, とパース
      jsondata = parser.toJson(data)
      json = JSON.parse( jsondata)
+
+     # チャットルームはあるけど、メッセージ数が0の時にエラーを出す
+     if !json.feed.entry.summary?
+      console.log "Error : Chatroom already exists, But a chat messeage doesn't exist. Please, send any messeage."
+      process.exit 1
 
      # Hubot Core にメッセージを送信
      message = json.feed.entry.summary.$t # 最新のチャット内容
