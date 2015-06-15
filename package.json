@@ -1,6 +1,6 @@
 {
   "name": "hubot-cybozulive",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Hubot CybozuLive Adapter",
  "licenses": [
   {
@@ -13,7 +13,6 @@
    "url": "git@github.com:kamera25/hubot-cybozulive.git"
  },
  "dependencies": {
-    "hubot": "^2.11.0",
     "xml2json": "^0.5.1",
     "oauth": "^0.9.12"
   },
@@ -22,7 +21,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "Hubot"
+    "Hubot",
+    "CybozuLive"
   ],
   "author": "Takahiro Nakaoku"
 }
